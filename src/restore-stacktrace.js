@@ -26,7 +26,7 @@ function restoreStacktrace(options) {
       // isOnlyUrl
       // true: " at http://something/bundle.js:1:1"
       // false: " at bla.bla (http://something/bundle.js:1:1)"
-      var isOnlyUrl = stackLine.match(/^at http(s?):\/\//);
+      var isOnlyUrl = stackLine.match(/^at (http|https|file):\/\//);
 
       var sourceUrl = isOnlyUrl ?
         stackLine.substring('at '.length) :
