@@ -16,12 +16,16 @@ const loadSourcemaps = require('./load-sourcemaps');
 const restoreStacktrace = require('./restore-stacktrace');
 
 program
-  .version('0.0.1')
-  .option('-m, --maps <value>', 'Directory containing source maps')
-  .option('-s, --stacktrace <value>', 'File containing minified stack trace')
-  .parse(process.argv);
+	.version('0.0.1')
+	.option('-m, --maps <value>', 'Directory containing source maps')
+	.option('-s, --stacktrace <value>', 'File containing minified stack trace')
+	.parse(process.argv);
 
-console.log(restoreStacktrace({
-  stacktrace: fs.readFileSync(program.stacktrace).toString(),
-  sourceMaps: loadSourcemaps(program.maps)
-}));
+(async function () {
+	const sourceMaps = await loadSourcemaps(program.maps)
+	console.log(restoreStacktrace({
+		stacktrace: fs.readFileSync(program.stacktrace).toString(),
+		sourceMaps,
+	}));
+})()
+

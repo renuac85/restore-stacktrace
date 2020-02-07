@@ -12,9 +12,9 @@
 const fs = require('fs');
 const {SourceMapConsumer} = require('source-map');
 
-module.exports = function (sourceMapsDirectory) {
-	return fs.readdirSync(sourceMapsDirectory).reduce(function (files, filename) {
-
+module.exports = async function (sourceMapsDirectory) {
+	const files = {}
+	for (let filename of fs.readdirSync(sourceMapsDirectory)) {
 		if (!filename.endsWith(".map")) {
 			return files;
 		}
@@ -23,8 +23,7 @@ module.exports = function (sourceMapsDirectory) {
 		const sourceMapFile = sourceMapsDirectory + filename;
 		const sourceMapContent = fs.readFileSync(sourceMapFile).toString();
 
-		files[moduleName] = new SourceMapConsumer(sourceMapContent);
-
-		return files;
-	}, {});
+		files[moduleName] = await new SourceMapConsumer(sourceMapContent);
+	}
+	return files;
 };
