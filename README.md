@@ -1,5 +1,7 @@
 # restore-stacktrace
 
+Simple utility to restore stacktraces
+
     $ node src/main.js --help
 
       Usage: main [options]
