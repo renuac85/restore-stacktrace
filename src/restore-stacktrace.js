@@ -64,7 +64,9 @@ function restoreStacktrace(options) {
         column: column
       });
 
-      var source = originalPosition.source.substring('webpack:///'.length, originalPosition.source.length);
+      var source = originalPosition.source.startsWith("webpack:///")
+        ? originalPosition.source.substring('webpack:///'.length, originalPosition.source.length)
+          : originalPosition.source
 
       // remove last ? part
       if (source.lastIndexOf('?') > source.lastIndexOf('/')) {
