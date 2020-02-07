@@ -18,9 +18,9 @@ const {SourceMapFetcher} = require("./load-sourcemaps")
 
 program
 	.version('0.0.1')
-	.option('-b --base <value>', 'Base URL for fetching source maps')
-	.option('-s, --stacktrace <value>', 'File containing minified stack trace')
-	.option('-i, --interactive', 'Read stack trace from stdin until the empty line')
+	.option('-b, --base <value>', 'base URL for fetching source maps')
+	.option('-s, --stacktrace <value>', 'file containing minified stack trace')
+	.option('-i, --interactive', 'read stack trace from stdin until the empty line')
 	.parse(process.argv);
 
 (async function () {

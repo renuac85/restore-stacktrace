@@ -10,8 +10,8 @@ Simple utility to restore Javascript stacktraces from sourcemaps
 
         -h, --help                output usage information
         -V, --version             output the version number
-        -m, --maps <value>        Directory containing source maps
-        -s, --stacktrace <value>  File containing minified stack trace
-        -i, --interactive         Read stack trace from stdin until the empty line
+        -b, --base <value>        base URL for fetching source maps
+        -s, --stacktrace <value>  file containing minified stack trace
+        -i, --interactive         read stack trace from stdin until the empty line
         
        -i has precedence over -s
