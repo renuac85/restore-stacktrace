@@ -1,8 +1,8 @@
 # restore-stacktrace
 
-Simple utility to restore stacktraces
+Simple utility to restore Javascript stacktraces from sourcemaps
 
-    $ node src/main.js --help
+    $ node index.js --help
 
       Usage: main [options]
 
@@ -12,3 +12,6 @@ Simple utility to restore stacktraces
         -V, --version             output the version number
         -m, --maps <value>        Directory containing source maps
         -s, --stacktrace <value>  File containing minified stack trace
+        -i, --interactive         Read stack trace from stdin until the empty line
+        
+       -i has precedence over -s

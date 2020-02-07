@@ -11,81 +11,80 @@
  * Modified by charlag
  */
 
-function restoreStacktrace(options) {
-  let stacktrace = options.stacktrace;
-  let sourceMaps = options.sourceMaps;
+async function restoreStacktrace(options) {
+	const {stacktrace, fetcher} = options
 
-  const lines = stacktrace.split('\n');
-  let result = '';
+	const lines = stacktrace.split('\n');
+	let result = '';
 
-  for (let stackLine of lines) {
-    stackLine = stackLine.trim();
+	for (let stackLine of lines) {
+		stackLine = stackLine.trim();
 
-    if (stackLine.indexOf('at ') === 0) {
-      // isUrlOnly
-      // true: " at http://something/bundle.js:1:1"
-      // false: " at bla.bla (http://something/bundle.js:1:1)"
-      const isUrlOnly = stackLine.match(/^at (http|https|file):\/\//);
+		if (stackLine.indexOf('at ') === 0) {
+			// isUrlOnly
+			// true: " at http://something/bundle.js:1:1"
+			// false: " at bla.bla (http://something/bundle.js:1:1)"
+			const isUrlOnly = stackLine.match(/^at (http|https|file):\/\//);
 
-      let sourceUrl = isUrlOnly ?
-        stackLine.substring('at '.length) :
-        stackLine.substring(
-          stackLine.lastIndexOf('(') + 1,
-          stackLine.lastIndexOf(')')
-        );
+			let sourceUrl = isUrlOnly ?
+				stackLine.substring('at '.length) :
+				stackLine.substring(
+					stackLine.lastIndexOf('(') + 1,
+					stackLine.lastIndexOf(')')
+				);
 
-      const bundleFile = sourceUrl.substring(
-        sourceUrl.lastIndexOf('/') + 1,
-        sourceUrl.lastIndexOf(':', sourceUrl.lastIndexOf(':') - 1)
-      );
+			const bundleFile = sourceUrl.substring(
+				sourceUrl.lastIndexOf('/') + 1,
+				sourceUrl.lastIndexOf(':', sourceUrl.lastIndexOf(':') - 1)
+			);
 
-      const sourceLine = parseInt(sourceUrl.substring(
-        sourceUrl.lastIndexOf(':', sourceUrl.lastIndexOf(':') - 1) + 1,
-        sourceUrl.lastIndexOf(':')
-      ));
+			const sourceLine = parseInt(sourceUrl.substring(
+				sourceUrl.lastIndexOf(':', sourceUrl.lastIndexOf(':') - 1) + 1,
+				sourceUrl.lastIndexOf(':')
+			));
 
-      const column = parseInt(sourceUrl.substring(
-        sourceUrl.lastIndexOf(':') + 1,
-        sourceUrl.length
-      ));
+			const column = parseInt(sourceUrl.substring(
+				sourceUrl.lastIndexOf(':') + 1,
+				sourceUrl.length
+			));
 
-      const sourceMap = sourceMaps[bundleFile];
+			const sourceMap = await fetcher.getMap(bundleFile);
 
-      if (sourceMap == null) {
-        result += '  [original] ' + stackLine;
-        result += '\n';
+			if (sourceMap == null) {
+				result += '  [original] ' + stackLine;
+				result += '\n';
 
-        continue
-      }
+				continue
+			}
 
-      const originalPosition = sourceMap.originalPositionFor({
-        line: sourceLine,
-        column: column
-      });
+			const originalPosition = sourceMap.originalPositionFor({
+				line: sourceLine,
+				column: column
+			});
 
-      let source = originalPosition.source.startsWith("webpack:///")
-        ? originalPosition.source.substring('webpack:///'.length, originalPosition.source.length)
-          : originalPosition.source
+			let source = originalPosition.source.startsWith("webpack:///")
+				? originalPosition.source.substring('webpack:///'.length, originalPosition.source.length)
+				: originalPosition.source
 
-      // remove last ? part
-      if (source.lastIndexOf('?') > source.lastIndexOf('/')) {
-        source = source.substring(0, source.lastIndexOf('?'));
-      }
+			// remove last ? part
+			if (source.lastIndexOf('?') > source.lastIndexOf('/')) {
+				source = source.substring(0, source.lastIndexOf('?'));
+			}
 
-      result += '  at ';
-      if (!isUrlOnly) {
-        result += stackLine.substring('at '.length, stackLine.lastIndexOf('('));
-      }
-      result += originalPosition.name;
-      result += ' (' + source + ':' + originalPosition.line + ':' + originalPosition.column + ')';
-    } else {
-      result += stackLine;
-    }
+			result += '  at ';
+			if (!isUrlOnly) {
+				result += stackLine.substring('at '.length, stackLine.lastIndexOf('('));
+			}
+			result += originalPosition.name;
+			result += ' (' + source + ':' + originalPosition.line + ':' + originalPosition.column + ')';
+		} else {
+			result += stackLine;
+		}
 
-    result += '\n';
-  }
+		result += '\n';
+	}
 
-  return result;
+	return result;
 }
 
 module.exports = restoreStacktrace;

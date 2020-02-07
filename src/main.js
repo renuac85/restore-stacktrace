@@ -11,21 +11,52 @@
 
 const fs = require('fs');
 const program = require('commander');
+const readline = require('readline')
 
-const loadSourcemaps = require('./load-sourcemaps');
 const restoreStacktrace = require('./restore-stacktrace');
+const {SourceMapFetcher} = require("./load-sourcemaps")
 
 program
 	.version('0.0.1')
-	.option('-m, --maps <value>', 'Directory containing source maps')
+	.option('-b --base <value>', 'Base URL for fetching source maps')
 	.option('-s, --stacktrace <value>', 'File containing minified stack trace')
+	.option('-i, --interactive', 'Read stack trace from stdin until the empty line')
 	.parse(process.argv);
 
 (async function () {
-	const sourceMaps = await loadSourcemaps(program.maps)
-	console.log(restoreStacktrace({
-		stacktrace: fs.readFileSync(program.stacktrace).toString(),
-		sourceMaps,
+	const fetcher = new SourceMapFetcher(program.base)
+
+	let stacktrace
+	if (program.interactive) {
+		console.log("Interactive, reading stacktrace from STDIN")
+		stacktrace = await new Promise((resolve) => {
+			const rl = readline.createInterface({
+				input: process.stdin,
+				output: process.stdout
+			})
+			let traceContent = ''
+			rl.on('line', (input) => {
+				if (input === '') {
+					rl.close()
+					resolve(traceContent)
+				} else {
+					traceContent += input
+					traceContent += "\n"
+				}
+			})
+		})
+	} else if (program.stacktrace) {
+		stacktrace = fs.readFileSync(program.stacktrace).toString()
+	} else {
+		console.error("Neither -i nor -s specified, aborting")
+		program.help()
+		process.exit(1)
+		return
+	}
+	console.log("restoring stacktrace...")
+	console.log(await restoreStacktrace({
+		stacktrace,
+		fetcher,
 	}));
 })()
 

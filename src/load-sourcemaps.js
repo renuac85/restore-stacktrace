@@ -9,21 +9,27 @@
  * this material and any derivative works thereof are reserved by Trifacta Inc.
  */
 
-const fs = require('fs');
 const {SourceMapConsumer} = require('source-map');
+const fetch = require("node-fetch")
 
-module.exports = async function (sourceMapsDirectory) {
-	const files = {}
-	for (let filename of fs.readdirSync(sourceMapsDirectory)) {
-		if (!filename.endsWith(".map")) {
-			return files;
-		}
-
-		const moduleName = filename.substring(0, filename.length - '.map'.length);
-		const sourceMapFile = sourceMapsDirectory + filename;
-		const sourceMapContent = fs.readFileSync(sourceMapFile).toString();
-
-		files[moduleName] = await new SourceMapConsumer(sourceMapContent);
+module.exports.SourceMapFetcher = class SourceMapFetcher {
+	constructor(baseUrl) {
+		this.map = {}
+		this.baseUrl = baseUrl
 	}
-	return files;
-};
+
+	async getMap(filename) {
+		if (this.map[filename]) {
+			return this.map[filename]
+		}
+		try {
+			const response = await fetch(this.baseUrl + filename + ".map")
+			const content = await response.text()
+			this.map[filename] = await new SourceMapConsumer(content)
+			return this.map[filename]
+		} catch (e) {
+			return null
+		}
+	}
+}
+
