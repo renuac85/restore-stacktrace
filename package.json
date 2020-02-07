@@ -16,7 +16,6 @@
   "main": "src/main.js",
   "dependencies": {
     "commander": "2.8.1",
-    "lodash": "3.10.1",
     "source-map": "0.5.0"
   }
 }

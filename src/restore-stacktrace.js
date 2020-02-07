@@ -7,64 +7,63 @@
  * Any use of this material is subject to the Trifacta Inc., Source License located
  * in the file 'SOURCE_LICENSE.txt' which is part of this package.  All rights to
  * this material and any derivative works thereof are reserved by Trifacta Inc.
+ *
+ * Modified by charlag
  */
 
-var _ = require('lodash');
-
 function restoreStacktrace(options) {
-  var stacktrace = options.stacktrace;
-  var sourceMaps = options.sourceMaps;
+  let stacktrace = options.stacktrace;
+  let sourceMaps = options.sourceMaps;
 
-  var lines = stacktrace.split('\n');
-  var result = '';
+  const lines = stacktrace.split('\n');
+  let result = '';
 
-  lines.forEach(function(stackLine) {
+  for (let stackLine of lines) {
     stackLine = stackLine.trim();
 
     if (stackLine.indexOf('at ') === 0) {
-
-      // isOnlyUrl
+      // isUrlOnly
       // true: " at http://something/bundle.js:1:1"
       // false: " at bla.bla (http://something/bundle.js:1:1)"
-      var isOnlyUrl = stackLine.match(/^at (http|https|file):\/\//);
+      const isUrlOnly = stackLine.match(/^at (http|https|file):\/\//);
 
-      var sourceUrl = isOnlyUrl ?
+      let sourceUrl = isUrlOnly ?
         stackLine.substring('at '.length) :
         stackLine.substring(
           stackLine.lastIndexOf('(') + 1,
           stackLine.lastIndexOf(')')
         );
 
-      var bundleFile = sourceUrl.substring(
+      const bundleFile = sourceUrl.substring(
         sourceUrl.lastIndexOf('/') + 1,
         sourceUrl.lastIndexOf(':', sourceUrl.lastIndexOf(':') - 1)
       );
 
-      var sourceLine = parseInt(sourceUrl.substring(
+      const sourceLine = parseInt(sourceUrl.substring(
         sourceUrl.lastIndexOf(':', sourceUrl.lastIndexOf(':') - 1) + 1,
         sourceUrl.lastIndexOf(':')
       ));
 
-      var column = parseInt(sourceUrl.substring(
+      const column = parseInt(sourceUrl.substring(
         sourceUrl.lastIndexOf(':') + 1,
         sourceUrl.length
       ));
 
-      var sourceMap = sourceMaps[bundleFile];
+      const sourceMap = sourceMaps[bundleFile];
 
       if (sourceMap == null) {
         result += '  [original] ' + stackLine;
         result += '\n';
 
-        return;
+        continue
       }
 
-      var originalPosition = sourceMap.originalPositionFor({
+      const originalPosition = sourceMap.originalPositionFor({
         line: sourceLine,
         column: column
       });
 
-      var source = originalPosition.source.startsWith("webpack:///")
+      let source = originalPosition.source.startsWith("webpack:///")
         ? originalPosition.source.substring('webpack:///'.length, originalPosition.source.length)
           : originalPosition.source
 
@@ -74,7 +73,7 @@ function restoreStacktrace(options) {
       }
 
       result += '  at ';
-      if (!isOnlyUrl) {
+      if (!isUrlOnly) {
         result += stackLine.substring('at '.length, stackLine.lastIndexOf('('));
       }
       result += originalPosition.name;
@@ -84,7 +83,7 @@ function restoreStacktrace(options) {
     }
 
     result += '\n';
-  });
+  }
 
   return result;
 }

@@ -9,27 +9,22 @@
  * this material and any derivative works thereof are reserved by Trifacta Inc.
  */
 
-var fs = require('fs');
-var sourcemap = require('source-map');
+const fs = require('fs');
+const {SourceMapConsumer} = require('source-map');
 
-var SourceMapConsumer = sourcemap.SourceMapConsumer;
+module.exports = function (sourceMapsDirectory) {
+	return fs.readdirSync(sourceMapsDirectory).reduce(function (files, filename) {
 
-var endsWith = function(s, suffix) {
-  return s.indexOf(suffix, s.length - suffix.length) !== -1;
-};
+		if (!filename.endsWith(".map")) {
+			return files;
+		}
 
-module.exports = function(sourceMapsDirectory) {
-  return fs.readdirSync(sourceMapsDirectory).reduce(function(files, filename) {
-    if (!endsWith(filename, '.map')) {
-      return files;
-    }
+		const moduleName = filename.substring(0, filename.length - '.map'.length);
+		const sourceMapFile = sourceMapsDirectory + filename;
+		const sourceMapContent = fs.readFileSync(sourceMapFile).toString();
 
-    var moduleName = filename.substring(0, filename.length - '.map'.length);
-    var sourceMapFile = sourceMapsDirectory + filename;
-    var sourceMapContent = fs.readFileSync(sourceMapFile).toString();
+		files[moduleName] = new SourceMapConsumer(sourceMapContent);
 
-    files[moduleName] = new SourceMapConsumer(sourceMapContent);
-
-    return files;
-  }, {});
+		return files;
+	}, {});
 };

@@ -9,11 +9,11 @@
  * this material and any derivative works thereof are reserved by Trifacta Inc.
  */
 
-var fs = require('fs');
-var program = require('commander');
+const fs = require('fs');
+const program = require('commander');
 
-var loadSourcemaps = require('./load-sourcemaps');
-var restoreStacktrace = require('./restore-stacktrace');
+const loadSourcemaps = require('./load-sourcemaps');
+const restoreStacktrace = require('./restore-stacktrace');
 
 program
   .version('0.0.1')
