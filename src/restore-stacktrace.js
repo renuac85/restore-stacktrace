@@ -139,10 +139,10 @@ async function outputLine(fetcher, stackLine, {
 	result += '  at ';
 	if (compiledName) {
 		// Output compiled location too
-		result += compiledName
+		result += compiledName + " "
 	}
 	if (originalPosition.name) {
-		result += originalPosition.name;
+		result += originalPosition.name
 	}
 	result += ' (' + source + ':' + originalPosition.line + ':' + originalPosition.column + ')';
 	return result
