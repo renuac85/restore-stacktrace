@@ -23,11 +23,13 @@ async function restoreStacktrace(options) {
 		if (isAtWordLine(stackLine)) {
 			const parsed = parseAtWordLine(stackLine)
 			result += await outputLine(fetcher, stackLine, parsed)
-		} else if (isAtSymbolLine(stackLine)) {
-			const parsed = parseAtSymbolLine(stackLine)
-			result += await outputLine(fetcher, stackLine, parsed)
 		} else {
-			result += stackLine;
+			const atSymbolLine = parseAtSymbolLine(stackLine)
+			if (atSymbolLine != null) {
+				result += await outputLine(fetcher, stackLine, atSymbolLine)
+			} else {
+				result += stackLine;
+			}
 		}
 
 		result += '\n';
@@ -98,6 +100,8 @@ function parseAtSymbolLine(line) {
 		const regexArray = lineRegex.exec(rest)
 		sourceUrl = regexArray[1]
 		sourceLine = parseInt(regexArray[2])
+	} else {
+		return null
 	}
 	const bundleFile = sourceUrl.substring(
 		sourceUrl.lastIndexOf('/') + 1
