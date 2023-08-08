@@ -15,7 +15,8 @@ const fetch = require("node-fetch")
 module.exports.SourceMapFetcher = class SourceMapFetcher {
 	constructor(baseUrl) {
 		this.map = {}
-		this.baseUrl = baseUrl
+		const normalizedBase = baseUrl.endsWith("/") ? baseUrl : (baseUrl + "/")
+		this.baseUrl = normalizedBase
 	}
 
 	async getMap(filename) {
@@ -28,6 +29,7 @@ module.exports.SourceMapFetcher = class SourceMapFetcher {
 			this.map[filename] = await new SourceMapConsumer(content)
 			return this.map[filename]
 		} catch (e) {
+			console.warn(e)
 			return null
 		}
 	}

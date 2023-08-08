@@ -1,0 +1,8 @@
+Error message: can't access dead object
+Stacktrace:
+A@https://mail.tutanota.com/app.js:1:28895
+execute/T.set@https://mail.tutanota.com/app.js:1:30209
+click@https://mail.tutanota.com/main-a45d81a5.js:1:162635
+click@https://mail.tutanota.com/gui-base-ec6e3cbd.js:1:100008
+onclick@https://mail.tutanota.com/gui-base-ec6e3cbd.js:1:97238
+execute/D.prototype.handleEvent@https://mail.tutanota.com/app.js:1:23727
