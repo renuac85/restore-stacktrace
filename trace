@@ -1,8 +1,9 @@
-Error message: can't access dead object
-Stacktrace:
-A@https://mail.tutanota.com/app.js:1:28895
-execute/T.set@https://mail.tutanota.com/app.js:1:30209
-click@https://mail.tutanota.com/main-a45d81a5.js:1:162635
-click@https://mail.tutanota.com/gui-base-ec6e3cbd.js:1:100008
-onclick@https://mail.tutanota.com/gui-base-ec6e3cbd.js:1:97238
-execute/D.prototype.handleEvent@https://mail.tutanota.com/app.js:1:23727
+TypeError: Cannot read properties of null (reading 'length')
+    at Object.bitLength (asset://app/worker.js:1:33268)
+    at rr (asset://app/worker.js:1:54967)
+    at sr (asset://app/worker.js:1:54386)
+    at wa (asset://app/worker.js:12:32086)
+    at fa.decryptAndMapToInstance (asset://app/worker.js:12:29605)
+    at ks.load (asset://app/worker.js:1:25104)
+    at async Is.load (asset://app/worker.js:1:16461)
+    at async asset://app/common-min-e1360136.js:1:19193

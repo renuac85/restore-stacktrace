@@ -47,42 +47,34 @@ function isAtSymbolLine(line) {
 }
 
 function parseAtWordLine(stackLine) {
-	// isUrlOnly
-	// true: " at http://something/bundle.js:1:1"
-	// false: " at bla.bla (http://something/bundle.js:1:1)"
-	const isUrlOnly = stackLine.match(/^at (http|https|file):\/\//);
+	// bare: " at http://something/bundle.js:1:1"
+	// named: " at bla.bla (http://something/bundle.js:1:1)"
 
-	let sourceUrl = isUrlOnly
-		? stackLine.substring('at '.length)
-		: stackLine.substring(
-			stackLine.lastIndexOf('(') + 1,
-			stackLine.lastIndexOf(')')
-		);
-	let compiledName = isUrlOnly
-		? null
-		: stackLine.substring('at '.length, stackLine.lastIndexOf('('))
-
-
-	const bundleFile = sourceUrl.substring(
-		sourceUrl.lastIndexOf('/') + 1,
-		sourceUrl.lastIndexOf(':', sourceUrl.lastIndexOf(':') - 1)
-	);
-
-	const sourceLine = parseInt(sourceUrl.substring(
-		sourceUrl.lastIndexOf(':', sourceUrl.lastIndexOf(':') - 1) + 1,
-		sourceUrl.lastIndexOf(':')
-	));
-
-	const sourceColumn = parseInt(sourceUrl.substring(
-		sourceUrl.lastIndexOf(':') + 1,
-		sourceUrl.length
-	));
-
-	return {
-		sourceLine,
-		sourceColumn,
-		bundleFile,
-		compiledName,
+	const bareMatch = stackLine.match(/\s*at (new|async)?\s*([^\s]+):(\d+):(\d+)/)
+	if (bareMatch) {
+		const [_, modifier, fileUrl, sourceLine, sourceColumn] = bareMatch
+		const parsedFileUrl = new URL(fileUrl)
+		const bundleFile = parsedFileUrl.pathname.split("/").at(-1)
+		return {
+			sourceLine: parseInt(sourceLine),
+			sourceColumn: parseInt(sourceColumn),
+			bundleFile,
+			compiledName: modifier,
+		}
+	}
+	const namedMatch = stackLine.match(/\s*at (new|async)?\s*([^\s]+) \(([^\s]+):(\d+):(\d+)\)/)
+	if (namedMatch) {
+		const [_, modifier, compiledName, fileUrl, sourceLine, sourceColumn] = namedMatch
+		const parsedFileUrl = new URL(fileUrl)
+		const bundleFile = parsedFileUrl.pathname.split("/").at(-1)
+		return {
+			sourceLine: parseInt(sourceLine),
+			sourceColumn: parseInt(sourceColumn),
+			bundleFile,
+			compiledName: (modifier ? (modifier + " ") : "") + compiledName,
+		}
+	} else {
+		throw new Error(`Cannot parse line: ${stackLine}`)
 	}
 }
 

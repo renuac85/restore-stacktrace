@@ -24,6 +24,7 @@ module.exports.SourceMapFetcher = class SourceMapFetcher {
 			return this.map[filename]
 		}
 		try {
+			console.log("fetching map for", filename, this.baseUrl + filename + ".map")
 			const response = await fetch(this.baseUrl + filename + ".map")
 			const content = await response.text()
 			this.map[filename] = await new SourceMapConsumer(content)
